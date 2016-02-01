@@ -8,12 +8,8 @@ module.exports = Sailbot
  */
 let R = require('ramda')
 let Webdriver = require('selenium-webdriver')
-
 let By = Webdriver.By
 let Until = Webdriver.until
-
-let EventEmitter = require('events')
-
 let Init = require('./lib/browser_init')
 
 
@@ -21,7 +17,7 @@ let Init = require('./lib/browser_init')
  * Namespace Object composed
  * @param  {object} [ options = {timeout: '30', port: 7055} ]
  *         Pass a property 'dev' to launch and keep session/browser opened
- *         Pass a property id: 'session id' (string) to attach to session
+ *         Pass a property 'id': {string} session id, to attach to session
  * @returns {object} sailbot
  */
 function Sailbot (options) {
@@ -31,11 +27,6 @@ function Sailbot (options) {
         this.driver = webdriver.driver
         this.flow = webdriver.flow
     }
-
-    let events = new EventEmitter()
-    this.on = events.on
-    this.emit = events.emit
-    this.webdriver = Webdriver.promise.controlFlow()
 
     this.elem = 'initial' // current selected element
 
