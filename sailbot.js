@@ -3,7 +3,7 @@
 module.exports = Sailbot
 
 
-/**
+/*
  * Module dependencies
  */
 let R = require('ramda')
@@ -17,12 +17,12 @@ let EventEmitter = require('events')
 let Init = require('./lib/browser_init')
 
 
-/**
+/*
  * Namespace Object composed
- * @param  {undefined}: launch using chrome
- *         {string} 'dev': launch and keep session/browser opened
- *         {object} property "id" {string}: attach to a session
- * @returns a FlexNav object with the methods below
+ * @param  {object} [ options = {timeout: '30', port: 7055} ]
+ *         Pass a property 'dev' to launch and keep session/browser opened
+ *         Pass a property id: 'session id' (string) to attach to session
+ * @returns {object} sailbot
  */
 function Sailbot (options) {
 
@@ -60,17 +60,17 @@ function Sailbot (options) {
 }
 
 
-function init (options) {
+function init (opt) {
     let driver
     let flow = 'Running in Dev Mode (one browser supported)'
-    if (options === 'dev') {
-        Init.dev_launch()
+    if ( opt.hasOwnProperty('dev') ) {
+        Init.dev_launch(opt)
     }
-    else if (typeof options === 'object') {
-        driver = Init.dev_attach(options)
+    else if ( opt.hasOwnProperty('id') ) {
+        driver = Init.dev_attach(opt)
     }
     else {
-        let newBrowser = Init.launch(options)
+        let newBrowser = Init.launch(opt)
         driver = newBrowser.driver
         flow = newBrowser.flow
     }
@@ -86,8 +86,8 @@ function init (options) {
 
 
 /**
- * @param {string} cssSelector
- * @returns {browser} chainable method
+ * @param {string} url
+ * @returns {sailbot}
  */
 function to (url) {
     this.driver.get(url)
@@ -97,9 +97,9 @@ function to (url) {
 
 /**
  * Switches to all of the frames in order passed in the array
- * @param {array} [frame] - iframe's DOM node path in css name or id.
+ * @param {array} [frame] - iframe's DOM node path -name or id.
  * Pass any string to switch to defaultContent()
- * @returns {browser} chainable method
+ * @returns {sailbot}
  */
 function switchTo (frame) {
     let switchTo = this.driver.switchTo()
@@ -112,7 +112,7 @@ function switchTo (frame) {
 
 /**
 * @param {string} cssSelector
-* @returns {browser} chainable method with isFound() and isVisible()
+* @returns {sailbot} chain with with isFound() or isVisible()
 */
 function waitFor (cssSelector) {
     this._locator = By.css(cssSelector)
@@ -122,7 +122,7 @@ function waitFor (cssSelector) {
 
 
 /**
-* @returns {browser} chainable method
+* @returns {sailbot}
 */
 function isFound () {
     this.driver.wait(Until.elementsLocated(this._locator))
@@ -131,7 +131,7 @@ function isFound () {
 
 
 /**
-* @returns {browser} chainable method
+* @returns {sailbot}
 */
 function isVisible () {
     this.driver.wait(Until.elementIsVisible(this._webElem))
@@ -141,7 +141,7 @@ function isVisible () {
 
 /**
 * @param {string} cssSelector
-* @returns {browser} chainable method
+* @returns {sailbot}
 */
 function get (cssSelector, visibility) {
     _load(this, cssSelector, visibility)
@@ -152,7 +152,7 @@ function get (cssSelector, visibility) {
 
 /**
 * @param {string} cssSelector
-* @returns {browser} chainable method.
+* @returns {sailbot}
 */
 function getAll (cssSelector, visibility) {
     _load(this, cssSelector, visibility)
@@ -163,7 +163,7 @@ function getAll (cssSelector, visibility) {
 
 /**
 * @param {Any} [returnPromise] pass any value to return a promise
-* @returns {browser | promise } (chaibable method) | (not chainable method)
+* @returns {sailbot | promise} promise if a param is passed
 */
 function click (returnPromise) {
     let promise = this._webElem.click()
@@ -173,8 +173,7 @@ function click (returnPromise) {
 
 
 /**
-* @param {string} cssSelector
-* @returns {browser} chainable method
+* @returns {sailbot}
 */
 function clear () {
     this._webElem.clear()
@@ -183,17 +182,17 @@ function clear () {
 
 
 /**
-* @param {string} cssSelector
-* @returns {browser} chainable method
+* @param {string} text
+* @returns {sailbot}
 */
-function write (param) {
-    this._webElem.sendKeys(param)
+function write (text) {
+    this._webElem.sendKeys(text)
     return this
 }
 
 
 /**
-* @returns {promise} value or array of values. Non chainable method
+* @returns {promise} value (when get() used) or array of values (getAll())
 */
 function text () {
     let fn = () => (elem) => elem.getText()
@@ -202,7 +201,7 @@ function text () {
 
 
 /**
-* @returns {promise} value or array of values. Non chainable method
+* @returns {promise} value (when get() used) or array of values (getAll())
 */
 function innerHtml () {
     let fn = () => (elem) => elem.getInnerHtml()
@@ -212,7 +211,7 @@ function innerHtml () {
 
 /**
 * @param {string} attribute name
-* @returns {promise} value or array of values. Non chainable method
+* @returns {promise} value (when get() used) or array of values (getAll())
 */
 function attribute (attrName) {
     let fn = (attrName) => (elem) => elem.getAttribute(attrName)
@@ -221,8 +220,8 @@ function attribute (attrName) {
 
 
 /**
-* @returns {browser} chainable with webdriver native functions. EG:
-* alert()(.accept() | .dismiss() | .getText() | .cancel(arg0)...)
+* @returns {sailbot} chainable with webdriver native functions. EG:
+* alert()( .accept() | .dismiss() | .getText() | .cancel(arg0)...)
 */
 function alert () {
     this.driver.wait(Until.alertIsPresent(), 1000, 'WHAT')
@@ -231,8 +230,8 @@ function alert () {
 
 
 /**
-* @param {string} cssSelector
-* @returns {browser} chainable method
+* @param {number} ms
+* @returns {sailbot}
 */
 function sleep (ms) {
     this.driver.sleep(ms)
@@ -241,8 +240,7 @@ function sleep (ms) {
 
 
 /**
-* @param {string} cssSelector
-* @returns {browser} chainable method
+* @returns {sailbot}
 */
 function quit () {
     this.driver.quit()

@@ -4,9 +4,10 @@ For simple web automation.
 
 - Keeps selenium's async nature.
 - Can open browser windows, let them stay opened and reattach to that window when running a separate script.
+- Multiple concurrent/independent browsers.
 - Seamless support working with sites with iframes.
-- Currently, works best with chrome.
-- Docs incomplete
+- Waits until elements are visible to perform actions.
+- Only chrome supported.
 
 ## Installation
 
@@ -16,7 +17,7 @@ For simple web automation.
 
     let Sailbot = require('sailbot')
 
-    let go = new Sailbot(options)
+    let go = Sailbot(options)
 
     // as sailbot is async you can use something like bluebird coroutines
 
@@ -27,12 +28,15 @@ For simple web automation.
         go.to('http://somesite.com')
         .switchTo(['frame1, 'child_frame']).get('#id1').click()
         .get('#input').clear().write('Hello')
-        let y = yield go.get('#editlistinglink').attribute('value')
         let z = yield go.get('#editlistinglink').text()
+        let y = yield go.getAll('#editlistinglink').attribute('value') // returns array
         console.log(z, y)
+        go.sleep(5000)
+        waitFor('#element').isVisible()
+        waitFor('#element2').isFound()
+        go.driver.sleep(1000) // can use any native selenium functionality
+        go.quit()
 
     })
-
-
 
 
