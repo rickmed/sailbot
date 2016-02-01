@@ -23,31 +23,29 @@ let Init = require('./lib/launch')
 function Sailbot (options) {
 
     let webdriver = init(options)
-    if ( webdriver.driver !== undefined ) {
-        this.driver = webdriver.driver
-        this.flow = webdriver.flow
-    }
 
-    this.elem = 'initial' // current selected element
+    let proto = {
+        driver: webdriver.driver,
+        flow: webdriver.flow,
+        elem: 'initial',  // current selected element
+        to,
+        switchTo,
+        waitFor,
+        isFound,
+        isVisible,
+        get: get,
+        getAll,
+        click,
+        clear,
+        write,
+        innerHtml,
+        text,
+        attribute,
+        alert,
+        sleep,
+        quit }
 
-    let proto = [ to,
-                switchTo,
-                waitFor,
-                isFound,
-                isVisible,
-                get,
-                getAll,
-                click,
-                clear,
-                write,
-                innerHtml,
-                text,
-                attribute,
-                alert,
-                sleep,
-                quit ]
-
-    proto.forEach( fn => Sailbot.prototype[fn.name] = fn )
+    return Object.create(proto)
 }
 
 
