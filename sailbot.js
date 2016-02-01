@@ -13,7 +13,7 @@ let Until = Webdriver.until
 let Init = require('./lib/launch')
 
 
-/*
+/**
  * Namespace Object composed
  * @param  {object} [ options = {timeout: '30', port: 7055} ]
  *         Pass a property 'dev' to launch and keep session/browser opened
