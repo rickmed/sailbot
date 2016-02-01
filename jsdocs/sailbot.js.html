@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: sailbot.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: sailbot.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict'
+
+module.exports = Sailbot
+
+
+/*
+ * Module dependencies
+ */
+let R = require('ramda')
+let Webdriver = require('selenium-webdriver')
+let By = Webdriver.By
+let Until = Webdriver.until
+let Init = require('./lib/launch')
+
+
+/*
+ * Namespace Object composed
+ * @param  {object} [ options = {timeout: '30', port: 7055} ]
+ *         Pass a property 'dev' to launch and keep session/browser opened
+ *         Pass a property 'id': {string} session id, to attach to session
+ * @returns {object} sailbot
+ */
+function Sailbot (options) {
+
+    let webdriver = init(options)
+
+    let proto = {
+        driver: webdriver.driver,
+        flow: webdriver.flow,
+        elem: 'initial',  // current selected element
+        to,
+        switchTo,
+        waitFor,
+        isFound,
+        isVisible,
+        get: get,
+        getAll,
+        click,
+        clear,
+        write,
+        innerHtml,
+        text,
+        attribute,
+        alert,
+        sleep,
+        quit }
+
+    return Object.create(proto)
+}
+
+
+function init (opt) {
+    let driver
+    let flow = 'Running in Dev Mode (one browser supported)'
+    if ( opt &amp;&amp; opt.hasOwnProperty('dev') ) {
+        Init.dev_launch(opt)
+    }
+    else if ( opt &amp;&amp; opt.hasOwnProperty('id') ) {
+        driver = Init.dev_attach(opt)
+    }
+    else {
+        let newBrowser = Init.launch(opt)
+        driver = newBrowser.driver
+        flow = newBrowser.flow
+    }
+    let webdriver = { driver, flow }
+    return webdriver
+}
+
+
+
+/**
+ * Methods
+ */
+
+
+/**
+ * @param {string} url
+ * @returns {sailbot}
+ */
+function to (url) {
+    this.driver.get(url)
+    return this
+}
+
+
+/**
+ * Switches to all of the frames in order passed in the array
+ * @param {array} [frame] - iframe's DOM node path -name or id.
+ * Pass any string to switch to defaultContent()
+ * @returns {sailbot}
+ */
+function switchTo (frame) {
+    let switchTo = this.driver.switchTo()
+    switchTo.defaultContent()
+    let switchFrame = (frame) => switchTo.frame(frame)
+    if (typeof frame !== 'string') R.map(switchFrame, frame)
+    return this
+}
+
+
+/**
+* @param {string} cssSelector
+* @returns {sailbot} chain with with isFound() or isVisible()
+*/
+function waitFor (cssSelector) {
+    this._locator = By.css(cssSelector)
+    this._webElem = this.driver.findElement(this._locator)
+    return this
+}
+
+
+/**
+* @returns {sailbot}
+*/
+function isFound () {
+    this.driver.wait(Until.elementsLocated(this._locator))
+    return this
+}
+
+
+/**
+* @returns {sailbot}
+*/
+function isVisible () {
+    this.driver.wait(Until.elementIsVisible(this._webElem))
+    return this
+}
+
+
+/**
+* @param {string} cssSelector
+* @returns {sailbot}
+*/
+function get (cssSelector, visibility) {
+    _load(this, cssSelector, visibility)
+    this.whatGet = 'get'
+    return this
+}
+
+
+/**
+* @param {string} cssSelector
+* @returns {sailbot}
+*/
+function getAll (cssSelector, visibility) {
+    _load(this, cssSelector, visibility)
+    this.whatGet = 'getAll'
+    return this
+}
+
+
+/**
+* @param {Any} [returnPromise] pass any value to return a promise
+* @returns {sailbot | promise} promise if a param is passed
+*/
+function click (returnPromise) {
+    let promise = this._webElem.click()
+    if (returnPromise) return promise
+    return this
+}
+
+
+/**
+* @returns {sailbot}
+*/
+function clear () {
+    this._webElem.clear()
+    return this
+}
+
+
+/**
+* @param {string} text
+* @returns {sailbot}
+*/
+function write (text) {
+    this._webElem.sendKeys(text)
+    return this
+}
+
+
+/**
+* @returns {promise} value (when get() used) or array of values (getAll())
+*/
+function text () {
+    let fn = () => (elem) => elem.getText()
+    return _execAction(this, fn)
+}
+
+
+/**
+* @returns {promise} value (when get() used) or array of values (getAll())
+*/
+function innerHtml () {
+    let fn = () => (elem) => elem.getInnerHtml()
+    return _execAction(this, fn)
+}
+
+
+/**
+* @param {string} attribute name
+* @returns {promise} value (when get() used) or array of values (getAll())
+*/
+function attribute (attrName) {
+    let fn = (attrName) => (elem) => elem.getAttribute(attrName)
+    return _execAction(this, fn, attrName)
+}
+
+
+/**
+* @returns {sailbot} chainable with webdriver native functions. EG:
+* alert()( .accept() | .dismiss() | .getText() | .cancel(arg0)...)
+*/
+function alert () {
+    this.driver.wait(Until.alertIsPresent(), 1000, 'WHAT')
+    return this.driver.switchTo().alert()
+}
+
+
+/**
+* @param {number} ms
+* @returns {sailbot}
+*/
+function sleep (ms) {
+    this.driver.sleep(ms)
+    return this
+}
+
+
+/**
+* @returns {sailbot}
+*/
+function quit () {
+    this.driver.quit()
+    return this
+}
+
+
+
+/*
+ * Internal functions
+ */
+
+// run correspondent getAll or get
+function _execAction (self, action, actionParam) {
+    if (self.whatGet === 'getAll') {
+        let actionFn = action(actionParam)
+        return Webdriver.promise.map(self._webElemsArr, actionFn)
+    }
+    else return action(actionParam)(self._webElem)
+}
+
+function _load (self, cssSelector, visibility) {
+    let locator = self._locator = By.css(cssSelector)
+    self._webElem = self.driver.findElement(locator)
+    self._webElemsArr = self.driver.findElements(locator)
+    self.isFound() // checks first if element is in the page
+    if (!visibility) self.isVisible() // then if it is visible
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#alert">alert</a></li><li><a href="global.html#attribute">attribute</a></li><li><a href="global.html#clear">clear</a></li><li><a href="global.html#click">click</a></li><li><a href="global.html#get">get</a></li><li><a href="global.html#getAll">getAll</a></li><li><a href="global.html#innerHtml">innerHtml</a></li><li><a href="global.html#isFound">isFound</a></li><li><a href="global.html#isVisible">isVisible</a></li><li><a href="global.html#quit">quit</a></li><li><a href="global.html#sleep">sleep</a></li><li><a href="global.html#switchTo">switchTo</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#to">to</a></li><li><a href="global.html#waitFor">waitFor</a></li><li><a href="global.html#write">write</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Feb 01 2016 18:56:22 GMT-0430 (Venezuela Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
