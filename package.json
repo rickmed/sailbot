@@ -1,19 +1,19 @@
 {
     "name": "sailbot",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Simple web automation based on selenium-webdriver",
     "main": "sailbot.js",
     "dependencies": {
-    "selenium-webdriver": "^2.48.2",
-    "chromedriver": "^2.20.0",
-    "ramda": "^0.19.1"
+        "selenium-webdriver": "^2.48.2",
+        "chromedriver": "^2.20.0",
+        "ramda": "^0.19.1"
     },
     "repository": {
     "type": "git",
     "url": "NA"
     },
     "author": "Ricardo Medina",
-    "github": "ricmed205",
+    "github": "rickmed",
     "license": "MIT",
     "keywords": [
         "automation",
