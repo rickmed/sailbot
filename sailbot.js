@@ -10,7 +10,7 @@ let R = require('ramda')
 let Webdriver = require('selenium-webdriver')
 let By = Webdriver.By
 let Until = Webdriver.until
-let Init = require('./lib/browser_init')
+let Init = require('./lib/launch')
 
 
 /*
@@ -54,10 +54,10 @@ function Sailbot (options) {
 function init (opt) {
     let driver
     let flow = 'Running in Dev Mode (one browser supported)'
-    if ( opt.hasOwnProperty('dev') ) {
+    if ( opt && opt.hasOwnProperty('dev') ) {
         Init.dev_launch(opt)
     }
-    else if ( opt.hasOwnProperty('id') ) {
+    else if ( opt && opt.hasOwnProperty('id') ) {
         driver = Init.dev_attach(opt)
     }
     else {
