@@ -6,7 +6,6 @@ module.exports = Sailbot
 /*
  * Module dependencies
  */
-let R = require('ramda')
 let Webdriver = require('selenium-webdriver')
 let By = Webdriver.By
 let Until = Webdriver.until
@@ -22,12 +21,7 @@ let Init = require('./lib/launch')
  */
 function Sailbot (options) {
 
-    let webdriver = init(options)
-
     let proto = {
-        driver: webdriver.driver,
-        flow: webdriver.flow,
-        elem: 'initial',  // current selected element
         to,
         switchTo,
         waitFor,
@@ -45,7 +39,13 @@ function Sailbot (options) {
         sleep,
         quit }
 
-    return Object.create(proto)
+    let obj = Object.create(proto)
+
+    let webdriver = init(options)
+    obj.driver = webdriver.driver
+    obj.flow = webdriver.flow
+
+    return obj
 }
 
 
@@ -94,7 +94,7 @@ function switchTo (frame) {
     let switchTo = this.driver.switchTo()
     switchTo.defaultContent()
     let switchFrame = (frame) => switchTo.frame(frame)
-    if (typeof frame !== 'string') R.map(switchFrame, frame)
+    if (typeof frame !== 'string') frame.map(switchFrame)
     return this
 }
 
