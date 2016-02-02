@@ -38,7 +38,7 @@ let fn = Promise.coroutine(function* (val) {
     .get('#input').clear().write('Hello')  // almost all methods are chainable
     
     let go2 = Sailbot() 
-    let z = yield go2.get('#editlistinglink').text() // this will run in parallel 
+    let z = yield go2.get('#editlistinglink').text() // this will run in parallel/separate browser window
     
     let y = yield go.getAll('#editlistinglink').attribute('value') // returns array
     console.log(z, y)
