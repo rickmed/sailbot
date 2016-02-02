@@ -232,8 +232,7 @@ function sleep (ms) {
 * @returns {sailbot}
 */
 function quit () {
-    this.driver.quit()
-    return this
+    return this.driver.quit()
 }
 
 
