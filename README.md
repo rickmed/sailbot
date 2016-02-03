@@ -15,32 +15,53 @@ For simple web automation.
 
 ## Usage
 
-```
+```javascript
+// Example 1
+
 let Sailbot = require('sailbot')
+let Promise = require("bluebird")
 
-let go = Sailbot(options)
+let go = Sailbot()
 
-options: {   // optional, defaults:
+let example1 = Async(function* () {
+
+    go.to('http://google.com')
+    .get('#lst-ib').clear().write('wikipedia')
+
+    let titles = yield go.getAll('h3 a')
+        .text()
+    let links = yield go.getAll('h3 a')
+        .attribute('href')
+
+    console.log(titles, links)
+
+    go.quit()
+})
+
+example1()
+
+// Example 2 
+
+let options = {   // defaults:
     timeout: 30, 
     port: 7055,
-    dev: 'dev', // pass this to keep a window opened (nodejs process running).
+    dev: 'dev',   // pass this to keep a window opened (nodejs process running).
     id: 'id here'  // the previous process will console the id. Pass this in any new script.
 }
 
-// as sailbot is async you can use something like bluebird coroutines
-
-let Promise = require("bluebird")
+let go = Sailbot(options)
+let go2 = Sailbot()
 
 let fn = Promise.coroutine(function* (val) {
 
     go.to('http://somesite.com')
-    .switchTo(['frame1, 'child_frame']).get('#id1').click()
+    .switchTo(['frame1, 'child_frame'])
+    .get('#id1').click()  // this will run in parallel/separate browser window
     .get('#input').clear().write('Hello')  // almost all methods are chainable
+  
+    go2.to('http://somesite.com')  // this will run in parallel/separate browser window
     
-    let go2 = Sailbot() 
-    let z = yield go2.get('#editlistinglink').text() // this will run in parallel/separate browser window
-    
-    let y = yield go.getAll('#editlistinglink').attribute('value') // returns array
+    let y = yield go.getAll('#editlistinglink').attribute('value')  // returns array
     console.log(z, y)
     go.sleep(5000)
     waitFor('#element').isVisible()
