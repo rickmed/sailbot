@@ -19,11 +19,11 @@ For simple web automation.
 // Example 1
 
 let Sailbot = require('sailbot')
-let Promise = require("bluebird")
+let Async = require('bluebird').coroutine
 
 let go = Sailbot()
 
-let func = Promise.coroutine(function* () {
+let func = Async(function* () {
 
     go.to('http://google.com')
     .get('#lst-ib').clear().write('wikipedia')
@@ -51,11 +51,11 @@ let options = {   // defaults:
 let go = Sailbot(options)
 let go2 = Sailbot()
 
-let fn = Promise.coroutine(function* (val) {
+let fn = Async(function* (val) {
 
     go.to('http://somesite.com')
     .switchTo(['frame1', 'child_frame'])
-    .get('#id1').click()  // this will run in parallel/separate browser window
+    .get('#id1').click()
     .get('#input').clear().write('Hello')  // almost all methods are chainable
   
     go2.to('http://somesite.com')  // this will run in parallel/separate browser window
@@ -63,8 +63,11 @@ let fn = Promise.coroutine(function* (val) {
     let y = yield go.getAll('#editlistinglink').attribute('value')  // returns array
     console.log(z, y)
     go.sleep(5000)
-    waitFor('#element').isVisible()
-    waitFor('#element2').isFound()
+    
+    go2.get('cssSelector').click()  // other stuff with go2 browser
+    
+    go.waitFor('#element').isVisible()
+    .waitFor('#element2').isFound()
     go.driver.sleep(1000) // can use any native selenium functionality
     go.quit()
 
