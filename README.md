@@ -23,22 +23,21 @@ let Promise = require("bluebird")
 
 let go = Sailbot()
 
-let example1 = Async(function* () {
+let func = Async(function* () {
 
     go.to('http://google.com')
     .get('#lst-ib').clear().write('wikipedia')
 
-    let titles = yield go.getAll('h3 a')
-        .text()
-    let links = yield go.getAll('h3 a')
-        .attribute('href')
+    let titles = yield go.getAll('h3 a').text()
+    let links = yield go.getAll('h3 a').attribute('href')
 
     console.log(titles, links)
 
     go.quit()
 })
 
-example1()
+func()
+
 
 // Example 2 
 
@@ -55,7 +54,7 @@ let go2 = Sailbot()
 let fn = Promise.coroutine(function* (val) {
 
     go.to('http://somesite.com')
-    .switchTo(['frame1, 'child_frame'])
+    .switchTo(['frame1', 'child_frame'])
     .get('#id1').click()  // this will run in parallel/separate browser window
     .get('#input').clear().write('Hello')  // almost all methods are chainable
   
@@ -70,6 +69,8 @@ let fn = Promise.coroutine(function* (val) {
     go.quit()
 
 })
+
+fn()
 ```
 
 ## [Full Docs](http://rickmed.github.io/sailbot/)
