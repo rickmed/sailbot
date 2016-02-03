@@ -6,7 +6,7 @@ For simple web automation.
 - Can open browser windows, let them stay opened and reattach to that window when running a separate script.
 - Multiple concurrent/independent browsers.
 - Seamless support working with sites with iframes.
-- Waits until elements are visible to perform actions.
+- Waits until elements are loaded/visible (default) or loaded/hidden to perform actions.
 - Only chrome supported.
 
 ## Installation
@@ -39,10 +39,10 @@ let func = Async(function* () {
 func()
 
 
-// Example 2 
+// Example 2
 
 let options = {   // defaults:
-    timeout: 30, 
+    timeout: 30,
     port: 7055,
     dev: 'dev',   // pass this to keep a window opened (nodejs process running).
     id: 'id here'  // the previous process will console the id. Pass this in any new script.
@@ -57,15 +57,15 @@ let fn = Async(function* (val) {
     .switchTo(['frame1', 'child_frame'])
     .get('#id1').click()
     .get('#input').clear().write('Hello')  // almost all methods are chainable
-  
+
     go2.to('http://somesite.com')  // this will run in parallel/separate browser window
-    
+
     let y = yield go.getAll('#editlistinglink').attribute('value')  // returns array
     console.log(z, y)
     go.sleep(5000)
-    
+
     go2.get('cssSelector').click()  // other stuff with go2 browser
-    
+
     go.waitFor('#element').isVisible()
     .waitFor('#element2').isFound()
     go.driver.sleep(1000) // can use any native selenium functionality
