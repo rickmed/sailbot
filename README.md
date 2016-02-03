@@ -23,7 +23,7 @@ let Promise = require("bluebird")
 
 let go = Sailbot()
 
-let func = Async(function* () {
+let func = Promise.coroutine(function* () {
 
     go.to('http://google.com')
     .get('#lst-ib').clear().write('wikipedia')
