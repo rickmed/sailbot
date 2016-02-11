@@ -61,7 +61,7 @@ let fn = Async(function* (val) {
     go2.to('http://somesite.com')  // this will run in parallel/separate browser window
 
     let y = yield go.getAll('#editlistinglink').attribute('value')  // returns array
-    console.log(z, y)
+    console.log(y)
     go.sleep(5000)
 
     go2.get('cssSelector').click()  // other stuff with go2 browser
