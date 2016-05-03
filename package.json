@@ -4,8 +4,8 @@
     "description": "Simple web automation based on selenium-webdriver",
     "main": "sailbot.js",
     "dependencies": {
-        "selenium-webdriver": "^2.48.2",
-        "chromedriver": "^2.20.0"
+        "selenium-webdriver": "2.48.2",
+        "chromedriver": "2.20.0"
     },
     "repository": {
         "type": "git",
