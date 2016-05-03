@@ -1,6 +1,6 @@
 {
     "name": "sailbot",
-    "version": "1.1.112",
+    "version": "1.1.113",
     "description": "Simple web automation based on selenium-webdriver",
     "main": "sailbot.js",
     "dependencies": {
